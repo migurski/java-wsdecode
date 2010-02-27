@@ -68,7 +68,29 @@ public class WsDecode {
     public static void main (String args[]) throws Exception {
 
         if (args.length != 0) {
-            serverPort = Integer.parseInt (args[0]);
+            try {
+                serverPort = Integer.parseInt (args[0]);
+
+            } catch(NumberFormatException e) {
+                try {
+                    // maybe it's just a file name?
+                    FileInputStream fin = new FileInputStream (args[0]);
+                    BufferedImage img = ImageIO.read (fin);
+                    MonochromeBitmapSource src = new BufferedImageMonochromeBitmapSource (img);
+                    
+                    // attempt to read it.
+                    barcodeReader = new MultiFormatReader();
+                    Result res = barcodeReader.decode (src);
+                    
+                    // Yay!
+                    System.out.println (res.getText());
+                    System.exit (0);
+
+                } catch(Exception ugh) {
+                    System.err.println ("Neither a number nor a file.");
+                    System.exit (-1);
+                }
+            }
         }
 
         Handler handler = new Handler();
